@@ -149,7 +149,7 @@ def summarize_pdf():
         
         prompt = f"""
         Please provide a comprehensive summary of the following document. 
-        Make it well-structured with key points and main ideas:
+        Make it well-structured with key points and main ideas and try to use as much simpler words you can:
 
         {text_content}
 
@@ -184,7 +184,7 @@ def quizify_pdf():
         
         prompt = f"""
         Based on the following document, create exactly 7 multiple-choice questions with 4 options each.
-        Each question should have only one correct answer.
+        Each question should have only one correct answer. Kindly make sure to choose those questions whose length are between 12-25              words and the options should not be in more than 3-4 words
         
         Format your response as a JSON array like this:
         [
@@ -259,7 +259,7 @@ def ask_question():
             text_content = text_content[:777000] + "..."
         
         prompt = f"""
-        Based on the following document, please answer the question below.
+        Based on the following document, please answer the question below and try your best to use simple words so that even a class 8th          student can understand and the length of the answer should vary according to user specification and need, if not mentioned that           you try to guess if the answer should be given lengthy or short, but even in the worst scenario, dont use more than 140 words.
         If the answer is not found in the document, please say "I cannot find information about this in the uploaded document."
         
         Document:
