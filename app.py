@@ -39,7 +39,7 @@ def extract_text_from_pdf(pdf_path):
     except Exception as e:
         raise Exception(f"Error extracting text from PDF: {str(e)}")
 
-def call_gemini_api(prompt, max_tokens=1000):
+def call_gemini_api(prompt, max_tokens=111000):
     """Make API call to Gemini Pro"""
     headers = {
         'Content-Type': 'application/json',
@@ -156,7 +156,7 @@ def summarize_pdf():
         Summary:
         """
         
-        summary = call_gemini_api(prompt, max_tokens=1500)
+        summary = call_gemini_api(prompt, max_tokens=111500)
         
         return jsonify({
             'success': True,
@@ -202,7 +202,7 @@ def quizify_pdf():
         {text_content}
         """
         
-        response = call_gemini_api(prompt, max_tokens=2000)
+        response = call_gemini_api(prompt, max_tokens=211000)
         
         # Extract JSON from response
         try:
@@ -270,7 +270,7 @@ def ask_question():
         Answer:
         """
         
-        answer = call_gemini_api(prompt, max_tokens=800)
+        answer = call_gemini_api(prompt, max_tokens=81100)
         
         return jsonify({
             'success': True,
