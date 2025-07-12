@@ -179,8 +179,8 @@ def quizify_pdf():
         text_content = pdf_content_store[session_id]
         
         # Truncate text if too long
-        if len(text_content) > 6000:
-            text_content = text_content[:6000] + "..."
+        if len(text_content) > 666000:
+            text_content = text_content[:666000] + "..."
         
         prompt = f"""
         Based on the following document, create exactly 7 multiple-choice questions with 4 options each.
@@ -255,8 +255,8 @@ def ask_question():
         text_content = pdf_content_store[session_id]
         
         # Truncate text if too long
-        if len(text_content) > 7000:
-            text_content = text_content[:7000] + "..."
+        if len(text_content) > 777000:
+            text_content = text_content[:777000] + "..."
         
         prompt = f"""
         Based on the following document, please answer the question below.
