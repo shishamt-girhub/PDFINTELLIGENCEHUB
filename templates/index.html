@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Intelligence Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.9);
+            font-weight: 300;
+        }
+
+        .upload-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 25px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 40px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .upload-zone {
+            border: 3px dashed #667eea;
+            border-radius: 20px;
+            padding: 60px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8edff 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-zone::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .upload-zone:hover::before {
+            opacity: 1;
+        }
+
+        .upload-zone:hover {
+            border-color: #764ba2;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102,126,234,0.2);
+        }
+
+        .upload-zone.dragover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #e8edff 0%, #dce4ff 100%);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: #667eea;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .upload-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(102,126,234,0.3);
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102,126,234,0.4);
+        }
+
+        .options-section {
+            display: none;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .option-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102,126,234,0.05) 0%, rgba(118,75,162,0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .option-card:hover::before {
+            opacity: 1;
+        }
+
+        .option-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .option-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .option-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .option-desc {
+            font-size: 1rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .results-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 25px;
+            padding: 40px;
+            margin-top: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            display: none;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 20px;
+        }
+
+        .results-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .close-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(255,71,87,0.3);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+
+
+        /* Q&A Styles */
+        .qa-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .question-input-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .question-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .question-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .ask-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .ask-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.3);
+        }
+
+        .qa-item {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .qa-question {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qa-answer {
+            font-size: 1rem;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* Summary Styles */
+        .summary-content {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            color: #333;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .error-message {
+            background: #ff4757;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .success-message {
+            background: #2ed573;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .upload-section {
+                padding: 40px 20px;
+            }
+            
+            .upload-zone {
+                padding: 40px 15px;
+            }
+            
+            .options-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .option-card {
+                padding: 30px 20px;
+            }
+            
+            .results-section {
+                padding: 25px;
+            }
+            
+            .question-input-container {
+                flex-direction: column;
+            }
+            
+            .question-input {
+                border-radius: 15px;
+            }
+            
+            .ask-btn {
+                border-radius: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📄 PDF Intelligence Hub</h1>
+            <p>Transform your PDFs into interactive knowledge with AI-powered insights</p>
+        </div>
+
+        <div id="uploadSection" class="upload-section">
+            <div class="upload-zone" onclick="document.getElementById('pdfFile').click()">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">Drop your PDF here or click to browse</div>
+                <div class="upload-subtext">Supports files up to 16MB</div>
+                <button class="upload-btn">Choose PDF File</button>
+            </div>
+            <input type="file" id="pdfFile" class="file-input" accept=".pdf">
+        </div>
+
+        <div id="optionsSection" class="options-section">
+            <div class="options-grid">
+                <div class="option-card" onclick="summarizePDF()">
+                    <div class="option-icon">📝</div>
+                    <div class="option-title">Smart Summary</div>
+                    <div class="option-desc">Get a comprehensive AI-generated summary of your PDF content with key insights and main points</div>
+                </div>
+                <div class="option-card" onclick="quizifyPDF()">
+                    <div class="option-icon">🧠</div>
+                    <div class="option-title">Knowledge Quiz</div>
+                    <div class="option-desc">Test your understanding with AI-generated multiple-choice questions based on the content</div>
+                </div>
+                <div class="option-card" onclick="askQuestions()">
+                    <div class="option-icon">💬</div>
+                    <div class="option-title">Ask Anything</div>
+                    <div class="option-desc">Have a conversation with your PDF - ask any question and get instant AI-powered answers</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultsSection" class="results-section">
+            <div class="results-header">
+                <div class="results-title">
+                    <span id="resultsIcon">📝</span>
+                    <span id="resultsTitle">Results</span>
+                </div>
+                <button class="close-btn" onclick="closeResults()">×</button>
+            </div>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let sessionId = null;
+        let currentQuiz = null;
+        let userAnswers = {};
+
+        // File upload handling
+        document.getElementById('pdfFile').addEventListener('change', handleFileUpload);
+
+        // Drag and drop functionality
+        const uploadZone = document.querySelector('.upload-zone');
+        
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+        
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+        
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileUpload({ target: { files: files } });
+            }
+        });
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.type !== 'application/pdf') {
+                showError('Please select a PDF file.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Show loading state
+            const uploadSection = document.getElementById('uploadSection');
+            uploadSection.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">Processing your PDF...</div>
+                </div>
+            `;
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    sessionId = data.session_id;
+                    showSuccess(`PDF uploaded successfully! Extracted ${data.text_length} characters.`);
+                    showOptions();
+                } else {
+                    showError(data.error || 'Failed to upload PDF');
+                    resetUpload();
+                }
+            })
+            .catch(error => {
+                showError('Network error. Please try again.');
+                resetUpload();
+            });
+        }
+
+        function showOptions() {
+            document.getElementById('uploadSection').style.display = 'none';
+            document.getElementById('optionsSection').style.display = 'block';
+        }
+
+        function resetUpload() {
+            document.getElementById('uploadSection').innerHTML = `
+                <div class="upload-zone" onclick="document.getElementById('pdfFile').click()">
+                    <div class="upload-icon">📄</div>
+                    <div class="upload-text">Drop your PDF here or click to browse</div>
+                    <div class="upload-subtext">Supports files up to 16MB</div>
+                    <button class="upload-btn">Choose PDF File</button>
+                </div>
+                <input type="file" id="pdfFile" class="file-input" accept=".pdf">
+            `;
+            document.getElementById('pdfFile').addEventListener('change', handleFileUpload);
+        }
+
+        function summarizePDF() {
+            if (!sessionId) {
+                showError('Please upload a PDF first.');
+                return;
+            }
+
+            showResults('📝', 'Smart Summary', `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">Generating intelligent summary...</div>
+                </div>
+            `);
+
+            fetch('/summarize', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    session_id: sessionId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showResults('📝', 'Smart Summary', `
+                        <div class="summary-content">
+                            ${data.summary.replace(/\n/g, '<br><br>')}
+                        </div>
+                    `);
+                } else {
+                    showError(data.error || 'Failed to generate summary');
+                }
+            })
+            .catch(error => {
+                showError('Network error. Please try again.');
+            });
+        }
+
+        function quizifyPDF() {
+            if (!sessionId) {
+                showError('Please upload a PDF first.');
+                return;
+            }
+
+            showResults('🧠', 'Knowledge Quiz', `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">Creating personalized quiz questions...</div>
+                </div>
+            `);
+
+            fetch('/quizify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    session_id: sessionId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentQuiz = data.questions;
+                    userAnswers = {};
+                    startEnhancedQuiz(data.questions);
+                } else {
+                    showError(data.error || 'Failed to generate quiz');
+                }
+            })
+            .catch(error => {
+                showError('Network error. Please try again.');
+            });
+        }
+
+        function startEnhancedQuiz(questions) {
+            let current = 0;
+            let userAnswers = [];
+            let answered = false;
+
+            function updateProgress() {
+                const percent = questions.length ? Math.round((current/questions.length)*100) : 0;
+                const progressBar = document.getElementById('progress');
+                if (progressBar) {
+                    progressBar.style.width = percent + '%';
+                }
+            }
+
+            function showQuestion(idx) {
+                updateProgress();
+                answered = false;
+                const box = document.getElementById('resultsContent');
+                if (idx >= questions.length) {
+                    showReport();
+                    return;
+                }
+                const q = questions[idx];
+                let html = `
+                    <div style="max-width: 600px; margin: 0 auto; background: rgba(255,255,255,0.98); border-radius: 28px; box-shadow: 0 20px 40px rgba(79, 172, 254, 0.13); padding: 48px 40px 40px 40px; color: #222; text-align: center; backdrop-filter: blur(20px); border: 1.5px solid rgba(200,200,200,0.10);">
+                        <div style="width: 100%; height: 10px; background: #e0eafc; border-radius: 6px; margin-bottom: 36px; overflow: hidden; box-shadow: 0 2px 8px rgba(79, 172, 254, 0.08);">
+                            <div id="progress" style="height: 100%; background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); border-radius: 6px; transition: width 0.4s cubic-bezier(.4,2,.6,1); width: 0%;"></div>
+                        </div>
+                        <div style="font-size: 2.3em; margin-bottom: 28px; color: #4facfe; font-weight: 700; letter-spacing: 1px;">Quiz <span style="font-size:0.7em;color:#888;">(${idx+1}/${questions.length})</span></div>
+                        <div style="font-size: 1.25em; margin-bottom: 32px; color: #333; font-weight: 600;">Q${idx+1}. ${q.question}</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px;">
+                `;
+                for (let i = 0; i < q.options.length; i++) {
+                    html += `<button style="background: #f8f9ff; border: 2px solid #171311; border-radius: 18px; color: #222; font-size: 1.13em; padding: 18px 0; cursor: pointer; transition: all 0.18s; box-shadow: 0 2px 8px rgba(79, 172, 254, 0.08); font-weight: 500; outline: none; position: relative; display: flex; align-items: center; justify-content: center; gap: 12px;" onclick="answerQuestion(${i})" id="opt${i}"><span style="flex: 1; text-align: center;">${q.options[i]}</span></button>`;
+                }
+                html += `</div>`;
+                html += `<button style="background: linear-gradient(135deg, #ffe082 0%, #fffde7 100%); color: #bfa100; border: none; border-radius: 50px; font-size: 1.08em; padding: 15px 0; width: 70%; margin: 0 auto; cursor: pointer; font-weight: 600; transition: all 0.18s; box-shadow: 0 2px 8px rgba(255,224,130,0.10); display: block;" onclick="skipQuestion()">⏭️ Skip Question</button>`;
+                html += `</div>`;
+                box.innerHTML = html;
+                updateProgress();
+            }
+
+            function showReport() {
+                updateProgress();
+                const box = document.getElementById('resultsContent');
+                let correct = 0, incorrect = 0, skipped = 0;
+                let html = `
+                    <div style="max-width: 600px; margin: 0 auto; background: rgba(255,255,255,0.98); border-radius: 28px; box-shadow: 0 20px 40px rgba(79, 172, 254, 0.13); padding: 48px 40px 40px 40px; color: #222; text-align: center; backdrop-filter: blur(20px); border: 1.5px solid rgba(200,200,200,0.10);">
+                        <div style="font-size: 2.7em; margin-bottom: 14px; animation: pop 0.7s cubic-bezier(.4,2,.6,1);">🎉</div>
+                        <div style="font-size: 2.2em; color: #4facfe; margin-bottom: 22px; font-weight: 700;">Quiz Report</div>
+                `;
+                
+                // Count
+                for (let i = 0; i < questions.length; i++) {
+                    if (userAnswers[i] === null) skipped++;
+                    else if (questions[i].options[userAnswers[i]] === questions[i].answer) correct++;
+                    else incorrect++;
+                }
+                
+                // Pie chart SVG
+                const total = questions.length;
+                const correctPct = total ? (correct/total)*100 : 0;
+                const incorrectPct = total ? (incorrect/total)*100 : 0;
+                const skippedPct = total ? (skipped/total)*100 : 0;
+                let offset = 25;
+                html += `<svg style="margin: 0 auto 24px auto; display: block;" width="120" height="120" viewBox="0 0 42 42"><circle r="15.915" cx="21" cy="21" fill="transparent" stroke="#e0eafc" stroke-width="7"></circle>`;
+                if (correctPct > 0) {
+                    html += `<circle r="15.915" cx="21" cy="21" fill="transparent" stroke="#2ecc71" stroke-width="7" stroke-dasharray="${correctPct} ${100-correctPct}" stroke-dashoffset="${offset}"></circle>`;
+                    offset -= (correctPct/100)*100;
+                }
+                if (incorrectPct > 0) {
+                    html += `<circle r="15.915" cx="21" cy="21" fill="transparent" stroke="#e94560" stroke-width="7" stroke-dasharray="${incorrectPct} ${100-incorrectPct}" stroke-dashoffset="${offset}"></circle>`;
+                    offset -= (incorrectPct/100)*100;
+                }
+                if (skippedPct > 0) {
+                    html += `<circle r="15.915" cx="21" cy="21" fill="transparent" stroke="#f0ad4e" stroke-width="7" stroke-dasharray="${skippedPct} ${100-skippedPct}" stroke-dashoffset="${offset}"></circle>`;
+                }
+                html += `</svg>`;
+                
+                // Score summary
+                html += `<div style="font-size: 1.25em; margin-top: 28px; color: #4facfe; font-weight: 600;"><b>${correct}</b> / <b>${total}</b> correct (${Math.round((correct/total)*100)}%)</div>`;
+                html += `<div style="display: flex; justify-content: space-around; margin-bottom: 24px; font-size: 1.13em;">
+                    <div style="color: #2ecc71;">✅<span>${correct} (${Math.round(correctPct)}%)</span><span style="font-size:0.9em; display: block;">Correct</span></div>
+                    <div style="color: #e94560;">❌<span>${incorrect} (${Math.round(incorrectPct)}%)</span><span style="font-size:0.9em; display: block;">Incorrect</span></div>
+                    <div style="color: #f0ad4e;">⏭️<span>${skipped} (${Math.round(skippedPct)}%)</span><span style="font-size:0.9em; display: block;">Skipped</span></div>
+                </div>`;
+                
+                // Detailed list
+                html += `<div style="max-height: 340px; overflow-y: auto; margin-top: 0; padding-right: 4px;">`;
+                for (let i = 0; i < questions.length; i++) {
+                    const q = questions[i];
+                    let blockClass = '';
+                    let blockStyle = '';
+                    if (userAnswers[i] === null) {
+                        blockClass = 'skipped';
+                        blockStyle = 'background: #fffde7; border-left-color: #f0ad4e;';
+                    } else if (q.options[userAnswers[i]] === q.answer) {
+                        blockClass = 'correct';
+                        blockStyle = 'background: #e8f5e9; border-left-color: #43a047;';
+                    } else {
+                        blockClass = 'incorrect';
+                        blockStyle = 'background: #ffeaea; border-left-color: #e94560;';
+                    }
+                    html += `<div style="border-radius: 20px; margin-bottom: 32px; padding: 28px 22px; text-align: left; color: #222; box-shadow: 0 10px 25px rgba(79, 172, 254, 0.10); border-left: 7px solid #b0bec5; ${blockStyle}">`;
+                    html += `<h3 style="margin: 0 0 10px 0; color: #4facfe; font-size: 1.13em;">Q${i+1}. ${q.question}</h3>`;
+                    if (userAnswers[i] === null) {
+                        html += `<div style="color: #f0ad4e; font-weight: bold;">⏭️ Skipped</div>`;
+                    } else {
+                        const userOpt = q.options[userAnswers[i]];
+                        if (userOpt === q.answer) {
+                            html += `<div style="color: #2ecc71; font-weight: bold;">✅ Your Answer: ${userOpt} (Correct)</div>`;
+                        } else {
+                            html += `<div style="color: #e94560; font-weight: bold;">❌ Your Answer: ${userOpt} (Incorrect)</div>`;
+                        }
+                    }
+                    html += `<div>Correct Answer: <b>${q.answer}</b></div>`;
+                    html += `</div>`;
+                }
+                html += `</div>`;
+                html += `<button style="margin-top: 36px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #fff; border: none; border-radius: 50px; font-size: 1.13em; padding: 16px 0; width: 100%; max-width: 340px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(79, 172, 254, 0.10); transition: all 0.18s; display: block; margin-left: auto; margin-right: auto;" onclick="retakeQuiz()">🔄 Retake Test</button>`;
+                html += `</div>`;
+                box.innerHTML = html;
+            }
+
+            // Global functions for quiz interaction
+            window.answerQuestion = function(optIdx) {
+                if (answered) return;
+                answered = true;
+                userAnswers[current] = optIdx;
+                const q = questions[current];
+                
+                // Disable all options
+                for (let i = 0; i < q.options.length; i++) {
+                    document.getElementById('opt'+i).disabled = true;
+                    document.getElementById('opt'+i).style.opacity = '0.7';
+                    document.getElementById('opt'+i).style.cursor = 'not-allowed';
+                }
+                
+                // Mark correct/incorrect
+                if (q.options[optIdx] === q.answer) {
+                    document.getElementById('opt'+optIdx).style.background = '#e8f5e9';
+                    document.getElementById('opt'+optIdx).style.color = '#2ecc71';
+                    document.getElementById('opt'+optIdx).style.border = '2px solid #43a047';
+                    document.getElementById('opt'+optIdx).innerHTML += "<span style='position: absolute; right: 18px; top: 50%; transform: translateY(-50%); font-size: 1.3em;'>✅</span>";
+                } else {
+                    document.getElementById('opt'+optIdx).style.background = '#ffeaea';
+                    document.getElementById('opt'+optIdx).style.color = '#e94560';
+                    document.getElementById('opt'+optIdx).style.border = '2px solid #e94560';
+                    document.getElementById('opt'+optIdx).innerHTML += "<span style='position: absolute; right: 18px; top: 50%; transform: translateY(-50%); font-size: 1.3em;'>❌</span>";
+                    // Also show which was correct
+                    for (let i = 0; i < q.options.length; i++) {
+                        if (q.options[i] === q.answer) {
+                            document.getElementById('opt'+i).style.background = '#e8f5e9';
+                            document.getElementById('opt'+i).style.color = '#2ecc71';
+                            document.getElementById('opt'+i).style.border = '2px solid #43a047';
+                            document.getElementById('opt'+i).innerHTML += "<span style='position: absolute; right: 18px; top: 50%; transform: translateY(-50%); font-size: 1.3em;'>✅</span>";
+                        }
+                    }
+                }
+                
+                // Show next button
+                const box = document.getElementById('resultsContent');
+                let nextBtnText = (current === questions.length-1) ? 'See Report' : 'Next Question';
+                let nextBtn = `<button style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #fff; border: none; border-radius: 50px; font-size: 1.13em; padding: 16px 0; width: 70%; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(79, 172, 254, 0.10); transition: all 0.18s; margin: 32px auto 0 auto; display: block;" onclick="nextQuestion()">${nextBtnText}</button>`;
+                box.innerHTML += nextBtn;
+            };
+
+            window.skipQuestion = function() {
+                if (answered) return;
+                userAnswers[current] = null;
+                current++;
+                showQuestion(current);
+            };
+
+            window.nextQuestion = function() {
+                current++;
+                showQuestion(current);
+            };
+
+            window.retakeQuiz = function() {
+                current = 0;
+                userAnswers = [];
+                showQuestion(current);
+            };
+
+            // Start the quiz
+            if (questions && questions.length > 0) {
+                showQuestion(current);
+            } else {
+                document.getElementById('resultsContent').innerHTML = '<div style="font-size: 2.2em; color: #4facfe; margin-bottom: 22px; font-weight: 700;">No quiz questions found.</div>';
+            }
+        }
+
+
+
+        function askQuestions() {
+            if (!sessionId) {
+                showError('Please upload a PDF first.');
+                return;
+            }
+
+            showResults('💬', 'Ask Anything', `
+                <div class="qa-container">
+                    <div class="question-input-container">
+                        <input type="text" id="questionInput" class="question-input" placeholder="Ask any question about your PDF..." onkeypress="handleEnterKey(event)">
+                        <button class="ask-btn" onclick="submitQuestion()">Ask</button>
+                    </div>
+                    <div id="qaHistory"></div>
+                </div>
+            `);
+            
+            document.getElementById('questionInput').focus();
+        }
+
+        function handleEnterKey(event) {
+            if (event.key === 'Enter') {
+                submitQuestion();
+            }
+        }
+
+        function submitQuestion() {
+            const input = document.getElementById('questionInput');
+            const question = input.value.trim();
+            
+            if (!question) {
+                showError('Please enter a question.');
+                return;
+            }
+            
+            // Add loading state
+            const qaHistory = document.getElementById('qaHistory');
+            qaHistory.innerHTML = `
+                <div class="qa-item">
+                    <div class="qa-question">❓ ${question}</div>
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <div class="loading-text">Thinking...</div>
+                    </div>
+                </div>
+            ` + qaHistory.innerHTML;
+            
+            input.value = '';
+            
+            fetch('/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    session_id: sessionId,
+                    question: question
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const qaHistory = document.getElementById('qaHistory');
+                    qaHistory.innerHTML = `
+                        <div class="qa-item">
+                            <div class="qa-question">❓ ${data.question}</div>
+                            <div class="qa-answer">🤖 ${data.answer.replace(/\n/g, '<br><br>')}</div>
+                        </div>
+                    ` + qaHistory.innerHTML.replace(qaHistory.firstElementChild.outerHTML, '');
+                } else {
+                    showError(data.error || 'Failed to get answer');
+                }
+            })
+            .catch(error => {
+                showError('Network error. Please try again.');
+            });
+        }
+
+        function showResults(icon, title, content) {
+            document.getElementById('resultsIcon').textContent = icon;
+            document.getElementById('resultsTitle').textContent = title;
+            document.getElementById('resultsContent').innerHTML = content;
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function closeResults() {
+            document.getElementById('resultsSection').style.display = 'none';
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            document.body.insertBefore(errorDiv, document.body.firstChild);
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.textContent = message;
+            document.body.insertBefore(successDiv, document.body.firstChild);
+            
+            setTimeout(() => {
+                successDiv.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
